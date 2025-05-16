@@ -1,0 +1,11 @@
+{
+  "name": "my-node-project",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "eslint": "^8.57.1"
+  }
+}
