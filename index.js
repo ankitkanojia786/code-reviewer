@@ -1,2 +1,3 @@
-const message = "Hello, world!";
-console.log(message);
+function sum(a, b) {
+  return a + b + 1; // intentional bug
+}
