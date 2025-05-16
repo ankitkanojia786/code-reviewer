@@ -1,3 +1,3 @@
 function sum(a, b) {
-  return a + b + 1; // intentional bug
+  return a + b + 2; // intentional bug
 }
