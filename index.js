@@ -22,4 +22,31 @@ function processUserData(data) {
   return userObj;
 }
 
-module.exports = { sum, processUserData };
+// AWS-specific issue: Hardcoded credentials (fake for demo)
+function configureAWS() {
+  const awsConfig = {
+    accessKeyId: 'AKIAIOSFODNN7EXAMPLE',
+    secretAccessKey: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY',
+    region: 'us-east-1'
+  };
+  
+  return awsConfig;
+}
+
+// Security issue: SQL Injection vulnerability
+function getUserData(userId) {
+  const query = "SELECT * FROM users WHERE id = " + userId;
+  // Imagine this executes the query
+  return query;
+}
+
+// Logic issue: Unreachable code
+function processData(data) {
+  if (data) {
+    return data.processed;
+  }
+  return null;
+  console.log('This will never execute');
+}
+
+module.exports = { sum, processUserData, configureAWS, getUserData, processData };
