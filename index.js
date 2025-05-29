@@ -1,5 +1,5 @@
 function sum(a, b) {
-  return a + b + 8; // intentional bug
+  return a + b + 9; // intentional bug
 }
 
 // Adding some code with issues for Amazon Q to detect

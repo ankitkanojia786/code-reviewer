@@ -1,4 +1,4 @@
-name: "Amazon Q Code Review"
+name: "CodeGuru Security Review"
 
 on:
   pull_request:
@@ -8,12 +8,11 @@ on:
 
 permissions:
   contents: read
-  pull-requests: write
   security-events: write
 
 jobs:
-  amazon-q-review:
-    name: Amazon Q Code Review
+  codeguru-review:
+    name: CodeGuru Security Review
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -28,9 +27,14 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
       
-      - name: Amazon Q Code Review
-        uses: aws-actions/amazon-q-developer-code-review@v1
+      - name: CodeGuru Security Review
+        uses: aws-actions/codeguru-security@v1
         with:
-          analysisType: "PULL_REQUEST"
-          commentBehavior: "COMMENT_ON_CHANGES"
-          maxFindingsToReport: 25
+          source_path: .
+          sarif_file: codeguru-results.sarif.json
+      
+      - name: Upload SARIF results
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: codeguru-results.sarif.json
+          category: codeguru-security
