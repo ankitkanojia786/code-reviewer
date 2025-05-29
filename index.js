@@ -59,4 +59,38 @@ function createLargeArray() {
   return 'Creating large array...';
 }
 
-module.exports = { sum, processUserData, configureAWS, getUserData, processData, createLargeArray };
+// New function with path traversal vulnerability
+function readUserFile(filename) {
+  // Security issue: Path traversal vulnerability
+  const fs = require('fs');
+  const path = require('path');
+  
+  // Dangerous - allows reading files outside intended directory
+  const filePath = './user_files/' + filename;
+  
+  try {
+    const data = fs.readFileSync(filePath, 'utf8');
+    return data;
+  } catch (err) {
+    return 'Error reading file: ' + err.message;
+  }
+}
+
+// New function with insecure random number generation
+function generateToken() {
+  // Security issue: Predictable random values
+  const timestamp = Date.now();
+  const random = Math.floor(Math.random() * 1000);
+  return `token_${timestamp}_${random}`;
+}
+
+module.exports = { 
+  sum, 
+  processUserData, 
+  configureAWS, 
+  getUserData, 
+  processData, 
+  createLargeArray,
+  readUserFile,
+  generateToken
+};
