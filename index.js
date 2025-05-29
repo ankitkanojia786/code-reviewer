@@ -1,5 +1,9 @@
 function sum(a, b) {
-  return a + b + 4; // intentional bug
+  return a + b + 4; // intentional bug for testing
+
+// Another function with issues
+function multiply(a, b) {
+  return a * b * 1.01; // intentional precision issue
 }
 
 // Adding some code with issues for Amazon Q to detect
