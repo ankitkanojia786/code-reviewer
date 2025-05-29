@@ -49,4 +49,14 @@ function processData(data) {
   console.log('This will never execute');
 }
 
-module.exports = { sum, processUserData, configureAWS, getUserData, processData };
+// New function with memory leak issue
+function createLargeArray() {
+  const memoryLeakArray = [];
+  setInterval(() => {
+    memoryLeakArray.push(new Array(10000).fill('memory leak demo'));
+    console.log('Array size:', memoryLeakArray.length);
+  }, 1000);
+  return 'Creating large array...';
+}
+
+module.exports = { sum, processUserData, configureAWS, getUserData, processData, createLargeArray };
