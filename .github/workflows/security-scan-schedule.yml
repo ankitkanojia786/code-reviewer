@@ -1,0 +1,76 @@
+name: "Scheduled Security Scan"
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'  # Run at midnight every Sunday
+  workflow_dispatch:  # Allow manual triggering
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  security-scan:
+    name: Weekly Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      
+      - name: CodeGuru Security Review
+        uses: aws-actions/codeguru-security@v1
+        with:
+          source_path: .
+          sarif_file: codeguru-results.sarif.json
+      
+      - name: Upload SARIF results
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: codeguru-results.sarif.json
+          category: codeguru-security
+      
+      - name: Run CodeQL Analysis
+        uses: github/codeql-action/init@v2
+        with:
+          languages: javascript
+      
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+      
+      - name: Send notification
+        if: always()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            let summary = '## Weekly Security Scan Results\n\n';
+            
+            try {
+              if (fs.existsSync('codeguru-results.sarif.json')) {
+                const data = fs.readFileSync('codeguru-results.sarif.json', 'utf8');
+                const sarif = JSON.parse(data);
+                const results = sarif.runs[0]?.results || [];
+                
+                summary += `Found ${results.length} potential security issues.\n\n`;
+                
+                // Create issue with findings
+                github.rest.issues.create({
+                  owner: context.repo.owner,
+                  repo: context.repo.name,
+                  title: `Weekly Security Scan Results - ${new Date().toISOString().split('T')[0]}`,
+                  body: summary,
+                  labels: ['security', 'automated']
+                });
+              }
+            } catch (error) {
+              console.error('Error processing scan results:', error);
+            }
