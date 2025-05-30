@@ -1,0 +1,64 @@
+name: "CodeGuru Security Review"
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      scan_depth:
+        description: 'Scan depth level'
+        required: true
+        default: 'normal'
+        type: choice
+        options:
+          - normal
+          - deep
+          - quick
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  codeguru-review:
+    name: CodeGuru Security Review
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      
+      - name: CodeGuru Security Review
+        uses: aws-actions/codeguru-security@v1
+        with:
+          source_path: .
+          sarif_file: codeguru-results.sarif.json
+      
+      - name: Upload SARIF results
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: codeguru-results.sarif.json
+          category: codeguru-security
+          
+      - name: Summarize findings
+        if: always()
+        run: |
+          echo "## CodeGuru Security Scan Summary" >> $GITHUB_STEP_SUMMARY
+          echo "Scan completed at $(date)" >> $GITHUB_STEP_SUMMARY
+          if [ -f codeguru-results.sarif.json ]; then
+            FINDINGS=$(grep -c "\"level\": \"error\"" codeguru-results.sarif.json || echo "0")
+            echo "* Found $FINDINGS potential security issues" >> $GITHUB_STEP_SUMMARY
+            echo "* Full details available in Security tab" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "* No SARIF results file found" >> $GITHUB_STEP_SUMMARY
+          fi
