@@ -84,6 +84,47 @@ function generateToken() {
   return `token_${timestamp}_${random}`;
 }
 
+// New function with command injection vulnerability
+function executeCommand(userInput) {
+  // Security issue: Command injection vulnerability
+  const { exec } = require('child_process');
+  
+  // Dangerous - allows arbitrary command execution
+  exec('ls ' + userInput, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`Error: ${error.message}`);
+      return;
+    }
+    if (stderr) {
+      console.error(`stderr: ${stderr}`);
+      return;
+    }
+    console.log(`stdout: ${stdout}`);
+  });
+  
+  return 'Command executed';
+}
+
+// New function with insecure deserialization
+function deserializeUserData(serializedData) {
+  // Security issue: Insecure deserialization
+  return eval('(' + serializedData + ')');
+}
+
+// New function with XSS vulnerability
+function createUserProfile(userData) {
+  // Security issue: XSS vulnerability
+  const html = `
+    <div class="profile">
+      <h2>${userData.name}</h2>
+      <p>${userData.bio}</p>
+      <div class="custom-content">${userData.customHtml}</div>
+    </div>
+  `;
+  
+  return html;
+}
+
 module.exports = { 
   sum, 
   processUserData, 
@@ -92,5 +133,8 @@ module.exports = {
   processData, 
   createLargeArray,
   readUserFile,
-  generateToken
+  generateToken,
+  executeCommand,
+  deserializeUserData,
+  createUserProfile
 };
