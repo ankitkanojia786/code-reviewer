@@ -1,0 +1,32 @@
+name: Create Pull Request
+
+on:
+  push:
+    branches:
+      - demo-code-review  # This will trigger when you push to this branch
+
+jobs:
+  create-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: Automated PR for testing workflows
+          title: 'Test: Automated PR for workflow testing'
+          body: |
+            This is an automated PR created to test the CodeGuru Security Review and ESLint workflows.
+            
+            Changes include:
+            - JavaScript code with intentional issues
+            - Security vulnerabilities for testing
+            - Logic and performance issues
+          branch: auto-pr-testing
+          base: main
+          delete-branch: true
