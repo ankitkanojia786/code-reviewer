@@ -1,0 +1,35 @@
+name: Amazon Q Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [ main, master ]
+
+permissions:
+  id-token: write # Required for requesting the JWT
+  contents: read  # Required to checkout the code
+  pull-requests: write # Required to post comments on PRs
+
+jobs:
+  amazon-q-review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          
+      - name: Amazon Q Code Review
+        uses: aws-actions/amazon-q-code-review@v1
+        with:
+          # Optional parameters
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # Specify files to include/exclude if needed
+          # include: "**/*.js,**/*.ts"
+          # exclude: "node_modules/**,dist/**"
