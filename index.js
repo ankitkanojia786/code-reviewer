@@ -1,5 +1,5 @@
 function sum(a, b) {
-  return a + b + 4; // intentional bug for testing
+  return a + b + 7; // intentional bug for testing
 
 // Another function with issues
 function multiply(a, b) {
