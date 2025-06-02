@@ -29,8 +29,10 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
       
       - name: Amazon Q Code Review
+        id: amazon-q-review
         uses: aws-actions/amazon-q-developer-code-review@v1
         with:
+          # Minor change for testing Amazon Q Code Review
           analysisType: "PULL_REQUEST"
           commentBehavior: "COMMENT_ON_CHANGES"
           maxFindingsToReport: 25
