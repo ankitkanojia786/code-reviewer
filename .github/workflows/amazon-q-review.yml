@@ -1,0 +1,32 @@
+name: "Amazon Q Code Review"
+
+on:
+  pull_request:
+    branches: [ main, master ]
+
+permissions:
+  id-token: write  # Required for OIDC
+  contents: read
+  pull-requests: write
+
+jobs:
+  amazon-q-review:
+    name: Amazon Q Code Review
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+      
+      - name: Amazon Q Code Review
+        id: amazon-q-review
+        uses: aws-actions/amazon-q-code-review@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
