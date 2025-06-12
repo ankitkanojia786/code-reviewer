@@ -1,0 +1,38 @@
+name: "Amazon Q Code Review"
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  amazon-q-review:
+    name: Amazon Q Code Review
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      
+      - name: Amazon Q Code Review
+        uses: aws-actions/amazon-q-developer-code-review@v1
+        with:
+          # Configure the analysis scope
+          analysis_scope: changed_files
+          # Optional: Customize the comment behavior
+          result_commenting_behavior: comment_on_changes
+          # Optional: Specify the maximum number of findings to report
+          max_findings_to_report: 25
